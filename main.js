@@ -1,8 +1,9 @@
-import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
+import pkg from '@apollo/client';
+const { ApolloClient, InMemoryCache, gql } = pkg;
 
 const APIURL = 'https://api.thegraph.com/subgraphs/name/furkanakal/evilusdt/';
 
-const tokensQuery = `
+const evilEventsQuery = `
   query {
     issues(first: 5, orderBy: blockNumber, orderDirection: desc) {
       amount
@@ -40,7 +41,7 @@ const client = new ApolloClient({
 
 client
   .query({
-    query: gql(tokensQuery),
+    query: gql(evilEventsQuery),
   })
   .then((data) => console.log('Subgraph data: ', data))
   .catch((err) => {
