@@ -4,34 +4,18 @@ import fetch from 'node-fetch';
 // const subgraph = args[0];
 // const protocol = args[1];
 
-const theGraphUrl = 'https://api.thegraph.com/subgraphs/name/furkanakal/evilusdt/';
+const theGraphUrl = 'https://api.thegraph.com/subgraphs/name/furkanakal/evilusdt';
 
 const evilEventsQuery = e => {
   return `
     {
-      issues(first: 5, orderBy: blockNumber, orderDirection: desc) {
+      issues(first: 50, orderBy: amount, orderDirection: desc) {
         amount
         blockNumber
         transactionHash
       }
-      redeems(first: 5, orderBy: blockNumber, orderDirection: desc) {
+      redeems(first: 50, orderBy: amount, orderDirection: desc) {
         amount
-        blockNumber
-        transactionHash
-      }
-      addedBlackLists(first: 5, orderBy: blockNumber, orderDirection: desc) {
-        _user
-        blockNumber
-        transactionHash
-      }
-      removedBlackLists(first: 5, orderBy: blockNumber, orderDirection: desc) {
-        _user
-        blockNumber
-        transactionHash
-      }
-      destroyedBlackFunds(first: 5, orderBy: blockNumber, orderDirection: desc) {
-        _balance
-        _blackListedUser
         blockNumber
         transactionHash
       }
@@ -40,32 +24,61 @@ const evilEventsQuery = e => {
 };
 
 (async () => {
-  // Fetch from TheGraph
-  console.log('Start processing...');
-  const queryResponse = await fetch(theGraphUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      query: evilEventsQuery(5),
-    }),
-  });
+  try {
+    console.log('Start processing...');
+    const queryResponse = await fetch(theGraphUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: evilEventsQuery(5),
+      }),
+    });
 
-  const evilEventsData = await queryResponse.json();
+    if (!queryResponse.ok) {
+      throw new Error(`HTTP error! Status: ${queryResponse.status}`);
+    }
 
-  const evilEvents = evilEventsData.data.redeems.map(redeem => {
-    return redeem.amount
-  });
+    const evilEventsData = await queryResponse.json();
 
-  let queryValues = '';
+    const issuesAmounts = evilEventsData.data.issues.map(issue => issue.amount);
+    const redeemsAmounts = evilEventsData.data.redeems.map(redeem => redeem.amount);
 
-  for (let amount of evilEvents) {
-    queryValues = amount;
+    console.log(JSON.stringify(issuesAmounts));
+  } catch (error) {
+    console.error('Error:', error.message);
   }
-
-  await console.log(JSON.stringify(queryResponse));
 })();
+
+
+// (async () => {
+//   // Fetch from TheGraph
+//   console.log('Start processing...');
+//   const queryResponse = await fetch(theGraphUrl, {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json',
+//     },
+//     body: JSON.stringify({
+//       query: evilEventsQuery(5),
+//     }),
+//   });
+
+//   const evilEventsData = await queryResponse.json();
+
+//   const evilEvents = evilEventsData.redeems.map(redeem => {
+//     return redeem.amount
+//   });
+
+//   let queryValues = '';
+
+//   for (let amount of evilEvents) {
+//     queryValues = amount;
+//   }
+
+//   await console.log(JSON.stringify(queryResponse));
+// })();
 
 // async function pushEvents(queryValues) {
 //   const client = new Client();
