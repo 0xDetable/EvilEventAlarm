@@ -1,5 +1,9 @@
 import pkg from '@apollo/client';
 import nodemailer from 'nodemailer';
+import { config } from 'dotenv';
+
+config();
+
 const { ApolloClient, InMemoryCache, gql } = pkg;
 
 const APIURL = 'https://api.thegraph.com/subgraphs/name/furkanakal/evilusdt';
@@ -16,11 +20,12 @@ const evilEventsQuery = `
 `;
 
 const transporter = nodemailer.createTransport({
-  service: '',
+  host: process.env.HOST,
   auth: {
-    user: '',
-    pass: ''
-  }
+    user: 'info@detable.co',
+    pass: process.env.PASSWORD
+  },
+  debug: true
 });
 
 const client = new ApolloClient({
@@ -38,21 +43,22 @@ const checkAndSendEmail = async () => {
 
     for (const mint of mints) {
       if (mint.amount > constantThreshold) {
+        const truncatedAmount = (parseFloat(mint.amount) / 1000000).toString();
         const emailContent = `
           New Mint Event:
-          Amount: ${mint.amout}
+          Amount: ${truncatedAmount} USDT
           Block Number: ${mint.blockNumber}
           Transaction Hash: ${mint.transactionHash}
         `;
 
-        const mailOptions = {
-          from: '',
-          to: '',
+        const mailOptionsFurkan = {
+          from: 'info@detable.co',
+          to: 'furkan@detable.co',
           subject: 'New Mint Event',
           text: emailContent
         };
 
-        await transporter.sendMail(mailOptions);
+        await transporter.sendMail(mailOptionsFurkan);
 
         console.log('Email sent for a new mint event.');
       }
@@ -62,4 +68,4 @@ const checkAndSendEmail = async () => {
   }
 };
 
-setInterval(checkAndSendEmail, 6000);
+setInterval(checkAndSendEmail, 60000);
