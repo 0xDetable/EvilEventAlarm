@@ -1,7 +1,8 @@
 import pkg from '@apollo/client';
+import nodemailer from 'nodemailer';
 const { ApolloClient, InMemoryCache, gql } = pkg;
 
-const APIURL = 'https://api.thegraph.com/subgraphs/name/furkanakal/evilusdt/';
+const APIURL = 'https://api.thegraph.com/subgraphs/name/furkanakal/evilusdt';
 
 const evilEventsQuery = `
   query {
