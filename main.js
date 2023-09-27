@@ -62,4 +62,4 @@ const checkAndSendEmail = async () => {
   }
 };
 
-setInterval(checkAndSendEmail, 60000);
+setInterval(checkAndSendEmail, 6000);
