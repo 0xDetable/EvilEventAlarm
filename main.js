@@ -28,11 +28,38 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
-client
-  .query({
-    query: gql(evilEventsQuery),
-  })
-  .then((data) => console.log('Subgraph data: ', data))
-  .catch((err) => {
-    console.log('Error fetching data: ', err)
-  });
+const checkAndSendEmail = async () => {
+  try {
+    const { data } = await client.query({
+      query: gql(evilEventsQuery)
+    });
+
+    const mints = data.issues || [];
+
+    for (const mint of mints) {
+      if (mint.amount > constantThreshold) {
+        const emailContent = `
+          New Mint Event:
+          Amount: ${mint.amout}
+          Block Number: ${mint.blockNumber}
+          Transaction Hash: ${mint.transactionHash}
+        `;
+
+        const mailOptions = {
+          from: '',
+          to: '',
+          subject: 'New Mint Event',
+          text: emailContent
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        console.log('Email sent for a new mint event.');
+      }
+    }
+  } catch (err) {
+    console.error('Error checking for new mint events:', err);
+  }
+};
+
+setInterval(checkAndSendEmail, 60000);
