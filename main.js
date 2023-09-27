@@ -15,6 +15,14 @@ const evilEventsQuery = `
   }
 `;
 
+const transporter = nodemailer.createTransport({
+  service: '',
+  auth: {
+    user: '',
+    pass: ''
+  }
+});
+
 const client = new ApolloClient({
   uri: APIURL,
   cache: new InMemoryCache(),
